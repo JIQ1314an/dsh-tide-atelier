@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Whale Atelier">
+  <rect width="64" height="64" rx="14" fill="#0b1020"/>
+  <circle cx="47" cy="15" r="6" fill="#ffe9b0" opacity="0.9"/>
+  <circle cx="49" cy="13" r="5" fill="#0b1020" opacity="0.35"/>
+  <g opacity="0.35" fill="#fff5d6">
+    <rect x="12" y="12" width="1.5" height="1.5"/>
+    <rect x="22" y="18" width="1.5" height="1.5"/>
+    <rect x="33" y="9" width="1.5" height="1.5"/>
+    <rect x="54" y="28" width="1.5" height="1.5"/>
+  </g>
+  <path d="M10 37 Q10 27 22 27 L38 27 Q52 27 52 37 Q52 46 38 46 L22 46 Q10 46 10 37 Z" fill="#2f6fb7"/>
+  <path d="M14 38 Q14 32 24 32 L38 32 Q48 32 48 38 Q48 43 38 43 L24 43 Q14 43 14 38 Z" fill="#dff6ff" opacity="0.88"/>
+  <path d="M12 37 L4 28 L5 46 Z" fill="#2f6fb7"/>
+  <path d="M12 37 L7 32 L7 42 Z" fill="#7fd4f0" opacity="0.8"/>
+  <circle cx="41" cy="34" r="2.2" fill="#0b1020"/>
+  <circle cx="41.8" cy="33.4" r="0.7" fill="#fff"/>
+  <path d="M30 27 Q27 20 23 18" stroke="#bde9ff" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.8"/>
+  <path d="M32 27 Q35 19 39 17" stroke="#bde9ff" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.8"/>
+  <path d="M50 43 L58 27" stroke="#d9a34a" stroke-width="2.4" stroke-linecap="round"/>
+  <circle cx="58.4" cy="25.6" r="3" fill="#ff6ea9"/>
+  <path d="M8 48 Q16 45 24 48 M32 50 Q40 47 48 50 M18 54 Q26 51 34 54" stroke="#4dd8ff" stroke-width="1.4" fill="none" stroke-linecap="round" opacity="0.5"/>
+</svg>

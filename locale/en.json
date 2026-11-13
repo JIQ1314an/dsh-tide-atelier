@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Whale Atelier",
+    "description": "A page-internal 3D desktop pet for the DSH Web UI. A procedural low-poly whale-maid rendered with Three.js/WebGL blinks, looks at your cursor, reacts to tool/subagent/error state, and can be poked, spun, dragged, and collapsed. The same task is visualized as a generative constellation, garden, or city behind the pet; finished tasks are saved as descriptors."
+  }
+}

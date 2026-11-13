@@ -1,0 +1,67 @@
+# NOTICE
+
+Tide Atelier / 潮汐工坊 is an unofficial fan project for DeepSeek Harness (DSH).
+It is not affiliated with, endorsed by, or sponsored by DeepSeek / 深度求索.
+
+## Character
+
+The character depicted by the embedded artwork and 3D model is the community
+fan character **DeepSeek 娘 / Q 版大肥鱼 (whale-girl)**. The character is a
+decentralized community creation; this project does not claim ownership of the
+character design.
+
+Reference and community asset library:
+
+- https://treapgogo.github.io/deepseek-whale-girl/
+- https://github.com/fornarwhal/deepseek-whale-girl-icon (historical reference)
+- https://github.com/phoiex/AAAAGENT/tree/main/assets/original-design
+
+Community credits include 上善无形, 这个刀子真甜, zyd232, ZipZipPipe and the
+maintainers of the 鲸鱼娘开源资产库. If a credit is missing or incorrect, please
+open an issue and it will be corrected.
+
+Character artwork, the embedded 3D model, its texture and the icon are licensed
+under **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+(CC BY-NC-SA 4.0)**, the same non-commercial, share-alike terms used by the
+community assets. See `LICENSE-ASSETS`. They may not be used commercially
+without separate permission from the relevant rights holders.
+
+## 3D model
+
+The 3D model was generated from the project owner's three-view reference using
+**Tencent Hunyuan3D 2.1** (https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1).
+It is a derivative of the character artwork and is distributed under
+CC BY-NC-SA 4.0. The applicable Tencent Hunyuan3D 2.1 model/output terms also
+apply; where those terms are stricter, they govern. The model is embedded in
+`client.js`; it is not downloaded at runtime.
+
+## Three.js
+
+The client bundle includes **Three.js r160**, Copyright © 2010-2024 three.js
+authors, licensed under the MIT License:
+https://github.com/mrdoob/three.js/blob/dev/LICENSE
+
+The MIT text in `LICENSE` applies to the project code and to the bundled
+Three.js code. The character/model/texture assets are separate and are covered
+by `LICENSE-ASSETS`.
+
+## UI screenshot
+
+`docs/ui-constellation.png` is a screenshot captured by the project owner from
+the DSH page with the plugin active. It is distributed with the character
+assets under CC BY-NC-SA 4.0.
+
+## Combined distribution
+
+`client.js` contains both MIT-licensed code and CC BY-NC-SA 4.0 character
+assets. Because the distributed bundle contains both, use and redistribution of
+the package as a whole must comply with both licenses. The package is released
+for **non-commercial** use only, with attribution and share-alike for the
+character assets.
+
+## Privacy
+
+The plugin is client-only. It does not register a Host process, does not create
+model-facing tools, does not make network requests, and does not read file
+contents. UI preferences and compact gallery descriptors are stored in the
+browser's `localStorage`.
