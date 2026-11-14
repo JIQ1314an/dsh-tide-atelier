@@ -12,7 +12,7 @@
 
 > Real DSH UI screenshot: constellation form. The pet scale in this capture predates the final compact sizing.
 
-**Status:** `0.1.0` release candidate, verified against the DSH client-module contract (`npm run verify`). npm publication is pending the owner's npm login; the GitHub tag `v0.1.0` is the install source and was re-pointed to the fixed commit (see [`CHANGELOG.md`](CHANGELOG.md)).
+**Status:** `0.1.1`，产物已通过 DSH 客户端模块契约校验（`npm run verify`）。GitHub tag `v0.1.0` 已重指向修复提交，`v0.1.1` 与本次发布同源；npm 侧的 `0.1.0` 是坏产物、无法覆盖，只能由 `0.1.1` 取代（详见 [`CHANGELOG.md`](CHANGELOG.md)）。
 
 **Repository:** https://github.com/JIQ1314an/dsh-tide-atelier
 
@@ -34,19 +34,21 @@
 
 ## 安装
 
-一条命令（推荐，锁定 GitHub tag）：
+一条命令（推荐，锁定 GitHub tag，不依赖 npm 发布状态）：
 
 ```bash
-dsh plugin --profile web add https://github.com/JIQ1314an/dsh-tide-atelier.git#v0.1.0
+dsh plugin --profile web add https://github.com/JIQ1314an/dsh-tide-atelier.git#v0.1.1
 ```
 
-装完刷新一次 Web UI 即可看到宠物。这个包**没有 `prepare`/安装期构建脚本**，产物直接进仓库，所以一条命令安装不需要批准任何 build script；也不要为了"规范化"给它加上 `prepare`——那会让所有用户在 `pnpm` 首次运行时被脚本批准流程卡住。
+`#v0.1.0` 现在也指向修复后的产物，装哪个都能用。装完刷新一次 Web UI 即可看到宠物。这个包**没有 `prepare`/安装期构建脚本**，产物直接进仓库，所以一条命令安装不需要批准任何 build script；也不要为了"规范化"给它加上 `prepare`——那会让所有用户在 `pnpm` 首次运行时被脚本批准流程卡住。
 
-发布到 npm 后：
+npm 渠道：
 
 ```bash
-dsh plugin --profile web add dsh-tide-atelier
+dsh plugin --profile web add dsh-tide-atelier@0.1.1
 ```
+
+> ⚠️ **不要装 npm 的 `0.1.0`**：那份 `client.js` 是改名前的产物，注册 id 与包名不一致，装完不会有任何画面，而且 npm 不允许覆盖同名版本。`0.1.1` 上线之前，`latest` 仍指向坏包，请用上面的 git tag 或显式版本号。
 
 本地开发版：
 
@@ -56,16 +58,31 @@ dsh plugin --profile web add D:\Project\dsh-tide-atelier
 
 > 如果本机还装着旧的 `@local/dsh-activity-quest` 版本，请先禁用/卸载它，避免两个宠物同时注册。
 
-### 已经装过旧 v0.1.0 的人（2026-11-14 之前）
+### 已经装到坏版本的人（2026-11-14 之前装的）
 
-git 依赖被 profile 锁死在**具体 commit**，移动 tag 不会自动生效，需要重跑一次安装命令：
+**git 渠道**：profile 的锁文件记的是**具体 commit**，重打 tag 不会自动生效，重跑一次即可（`remove` 是必要的一步，否则 pnpm 认为 spec 未变而跳过解析）：
 
 ```bash
 dsh plugin --profile web remove dsh-tide-atelier
-dsh plugin --profile web add https://github.com/JIQ1314an/dsh-tide-atelier.git#v0.1.0
+dsh plugin --profile web add https://github.com/JIQ1314an/dsh-tide-atelier.git#v0.1.1
 ```
 
-如果只是在 `node_modules` 里手改了 `client.js`，则必须**完整重启该 profile**（`dsh web`）：客户端 bundle 的字节在激活时读入并缓存，热重载只覆盖 profile 自己的 patch 层。
+**npm 渠道**：把坏 `0.1.0` 换成 `0.1.1`：
+
+```bash
+dsh plugin --profile web remove dsh-tide-atelier
+dsh plugin --profile web add dsh-tide-atelier@0.1.1
+```
+
+装完刷新页面即可，`remove` + `add` 会让活 profile 重新挂载条目并重新读取 bundle 字节。只有在**手改过 `node_modules` 里的 `client.js`** 时才需要完整重启 `dsh web`——客户端 bundle 的字节在激活时快照，热重载只覆盖 profile 自己的 patch 层。
+
+确认是否修好：浏览器 DevTools Console 里不该再有
+`client-modules: could not load "dsh-tide-atelier": ... loaded without registering ...`；
+也可以对本机装好的目录跑一次契约校验：
+
+```bash
+node <仓库路径>\scripts\verify.mjs "%USERPROFILE%\.dsh\profiles\web\node_modules\dsh-tide-atelier"
+```
 
 ## 你会看到
 
@@ -162,8 +179,8 @@ npm run pack:check  # npm pack --dry-run
 
 1. `npm run verify` 必须为绿。它会拦下这次让 v0.1.0 变成"装了没反应"的那类漂移：注册 id ≠ 包名、bundle patch 行名 ≠ 包名、`dsh.client.platform` 不是 `web`、`files` 缺件，以及槽位/词表注册失败。
 2. 确认 `package.json` 的 `repository` / `bugs` / `homepage` 已指向 `JIQ1314an/dsh-tide-atelier`；如果 GitHub 用户名或仓库名变更，同步修改。
-3. 在 GitHub 建公开仓库 `dsh-tide-atelier`，推送本目录，并保证 tag 指向**已验证**的 commit（`git tag -f v0.1.0 && git push -f origin refs/tags/v0.1.0`；重打 tag 要在 CHANGELOG 里写明旧 commit，因为已安装用户要重跑安装命令）。
-4. `npm login` 后执行 `npm publish --access public`。
+3. 打 tag 并推送：`git tag -a v0.1.1 -m "…" && git push origin main refs/tags/v0.1.1`。**用新 tag 而不是重打旧 tag**——重打只对 git 安装有效，且已装用户锁在旧 commit 上必须重跑安装（当年 `v0.1.0` 被迫重打的经过见 CHANGELOG）。
+4. `npm login` 后执行 `npm publish --access public`；npm 版本不可覆盖，修 bug 必须发新版本号，随后 `npm deprecate` 掉坏版本。
 5. 在 [Open Plugin Market 收录申请](https://github.com/polang233/dsh-plugin-index/issues/new?template=plugin-add.yml) 提交 npm 包名、实际使用截图、Logo 和测试过的 DSH 版本。
 6. 用 [Open Plugin Market](https://dshopen.org/) 的徽章替换 README 中的占位。
 

@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.1.1 — 2026-11-14
+
+Same fixed artifact as the re-pointed `v0.1.0` tag; this version exists **only to
+repair the npm channel**, where `0.1.0` was published broken on 2026-11-13 and
+npm refuses to overwrite a published version.
+
+- `client.js` registers as `dsh-tide-atelier` (the package name).
+- `scripts/verify.mjs` contract gate, wired into `npm run check` / `prepublishOnly`.
+- `CHANGELOG.md` now ships inside the package so installs can read what happened.
+
+### Upgrade notes by channel
+
+| Channel | Situation | Action |
+|---|---|---|
+| npm `dsh-tide-atelier@0.1.0` | **Dead on arrival** — stale module id, plugin never renders | Install `0.1.1`; deprecate `0.1.0` so installers get a warning |
+| npm `latest` | Until `0.1.1` is published, `latest` still points at the broken `0.1.0` | Use the git tag command meanwhile |
+| Git `#v0.1.0` | Fixed (re-pointed to `2e81516`) | Already working; `#v0.1.1` is the tidy reference |
+| Git `main` | Tracks this commit | Fine, but pin a tag for reproducibility |
+
+```bash
+# after publishing 0.1.1
+npm deprecate "dsh-tide-atelier@0.1.0" "broken: client bundle registered the pre-rename module id; use 0.1.1"
+```
+
 ## 0.1.0 — release candidate
 
 ### Fixed (tag `v0.1.0` re-pointed, 2026-11-14)

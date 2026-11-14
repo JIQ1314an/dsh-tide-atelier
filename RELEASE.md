@@ -5,11 +5,15 @@ runtime files, docs, licenses and the model preview. Do not copy the development
 workspace's `reference/`, `tools/`, `.tools/`, `node_modules/`, old backups or the
 HF token file into this repository.
 
-## 0. Name
+## 0. Identity (current state)
 
 - Brand: **Tide Atelier / 潮汐工坊**
-- npm package: **`dsh-tide-atelier`** (checked available on 2026-11-13)
-- GitHub repository: **`JIQ1314an/dsh-tide-atelier`** (public repo not created yet as of this writing)
+- npm package: **`dsh-tide-atelier`** — published 2026-11-13 by `miloji`
+  (`0.0.0-stage`, `0.1.0`). **`0.1.0` is the broken artifact** (stale module id) and
+  npm will not let it be overwritten; `0.1.1` is the first installable npm version,
+  and `latest` must move to it.
+- GitHub repository: **`JIQ1314an/dsh-tide-atelier`** — public; tag `v0.1.0` was
+  re-pointed to the fix (`2e81516`), tag `v0.1.1` carries the version bump.
 - GitHub account: **`JIQ1314an`**
 - The GitHub user `tide-atelier` already exists; do not use that identity.
 
@@ -77,44 +81,49 @@ overlay; running both at once is not supported.
 
 ## 3. Publish
 
-### 3a. Git tag (the current install path, npm publication pending)
-
-Users install with one command, so the tag *is* the release artifact:
+### 3a. Git tag (the robust install path — no npm dependency)
 
 ```powershell
 npm run verify                                  # must pass
-git add -A && git commit -m "fix(client): register module id as the package name"
-git tag -f v0.1.0
+git add -A && git commit -m "release: v0.1.1"
+git tag -a v0.1.1 -m "v0.1.1: fixed client module id; npm-channel repair for the broken 0.1.0"
 git push origin main
-git push -f origin refs/tags/v0.1.0
+git push origin refs/tags/v0.1.1
 ```
+
+Users then run one command, which works whether or not npm is reachable:
 
 ```powershell
-dsh plugin --profile web add https://github.com/JIQ1314an/dsh-tide-atelier.git#v0.1.0
+dsh plugin --profile web add https://github.com/JIQ1314an/dsh-tide-atelier.git#v0.1.1
 ```
 
-Re-pointing a tag is only acceptable while the version is young and nobody has
-published against it; record the superseded commit in `CHANGELOG.md` and tell
-existing installs to re-run the add command, because a profile's
-`pnpm-lock.yaml` pins the resolved commit.
+Moving an existing tag (what happened to `v0.1.0` on 2026-11-14) is a last resort:
+it only works for git installs, it invalidates nothing on npm, and every profile
+that already installed keeps the **old commit** until it re-runs
+`remove` + `add` — a `pnpm-lock.yaml` pins the resolved commit, and pnpm will skip
+resolution when the recorded specifier is unchanged. Record superseded commits in
+`CHANGELOG.md`. Prefer a new tag + a new npm version.
 
 ### 3b. npm
 
+npm versions are immutable, so a published defect is repaired by the *next* version:
+
 ```powershell
 npm login
-npm publish --access public
+npm publish --access public                     # from the v0.1.1 commit
+npm deprecate "dsh-tide-atelier@0.1.0" "broken: client bundle registered the pre-rename module id; use 0.1.1"
 ```
 
 Then verify:
 
 ```powershell
-npm view dsh-tide-atelier version license repository.url
-dsh plugin --profile web add dsh-tide-atelier
+npm view dsh-tide-atelier dist-tags.latest
+npm view dsh-tide-atelier@0.1.1 dist.tarball
+dsh plugin --profile web add dsh-tide-atelier@0.1.1
 ```
 
-If `npm publish` says the name is taken, stop and re-check before renaming.
-The package name was free at the time of writing, but npm names are global and
-first-come.
+Until `0.1.1` is published, `latest` still resolves to the broken `0.1.0`, so README
+and market submissions must point users at the git tag or an explicit version.
 
 ## 4. GitHub
 
@@ -123,8 +132,9 @@ first-come.
 - Add topics: `dsh`, `dsh-plugin`, `deepseek-harness`, `desktop-pet`,
   `whale-girl`, `threejs`, `generative-art`, `constellation`.
 - Add a social preview image (1280×640).
-- Create a release tag `v0.1.0` **on a commit where `npm run verify` passes** (see §3a; the
-  first tag was moved because the commit behind it shipped a stale module id).
+- Create a release tag for the version being published — `v0.1.1` here — **on a commit
+  where `npm run verify` passes** (see §3a; the first `v0.1.0` tag had to be moved because
+  the commit behind it shipped a stale module id, and moving tags is a last resort).
 - Add the npm install command and a 20–30 s demo GIF to the README.
 - Add 4–6 real UI screenshots:
   1. collapsed pet over the DSH page
