@@ -29,9 +29,30 @@ HF token file into this repository.
 
 ```powershell
 cd D:\Project\dsh-tide-atelier
+npm run verify
 npm run check
 npm run pack:check
 ```
+
+`npm run verify` (`scripts/verify.mjs`) is the gate that the broken `v0.1.0`
+would have caught: it compares the shipped `client.js` against the manifest and
+proves the module actually comes up.
+
+- `window.__ModuleLoader__.load({ id: … })` must be **exactly**
+  `package.json.name`. DSH keys every browser boot-graph row by the installed
+  package name, so a stale id (the pre-rename `@local/dsh-activity-quest`)
+  installs cleanly, mounts cleanly, and renders nothing — the browser fails with
+  `client-modules: could not load "dsh-tide-atelier": … loaded without registering "dsh-tide-atelier" via __ModuleLoader__.load`.
+- The bundle-patch row `name:` must equal the package name.
+- `dsh.client.platform` must be `web`; `immediately`/`inject`/`external` keep their declared types.
+- every `files` entry exists;
+- the bundle evaluates, `factory(require)` materializes, `apply(ctx)` registers the
+  `conversation.input.dock` and `shell.overlay` entries and the locale dictionary.
+
+**Never rename the package without re-running `npm run verify`.**
+**Do not add a `prepare` script.** The artifact is committed so that
+`dsh plugin … add <git>#<tag>` stays a one-command install with no build-script
+approval; a `prepare` hook would make every user approve it first.
 
 `npm pack --dry-run` must list:
 
@@ -41,6 +62,7 @@ npm run pack:check
 - `locale/en.json`, `locale/zh.json`
 - `icon.svg`
 - `README.md`
+- `CHANGELOG.md`
 - `LICENSE`
 - `LICENSE-ASSETS`
 - `NOTICE`
@@ -53,7 +75,30 @@ If testing installation, disable/uninstall the live `@local/dsh-activity-quest`
 first, then install this directory in a clean profile. Both register a pet
 overlay; running both at once is not supported.
 
-## 3. Publish to npm
+## 3. Publish
+
+### 3a. Git tag (the current install path, npm publication pending)
+
+Users install with one command, so the tag *is* the release artifact:
+
+```powershell
+npm run verify                                  # must pass
+git add -A && git commit -m "fix(client): register module id as the package name"
+git tag -f v0.1.0
+git push origin main
+git push -f origin refs/tags/v0.1.0
+```
+
+```powershell
+dsh plugin --profile web add https://github.com/JIQ1314an/dsh-tide-atelier.git#v0.1.0
+```
+
+Re-pointing a tag is only acceptable while the version is young and nobody has
+published against it; record the superseded commit in `CHANGELOG.md` and tell
+existing installs to re-run the add command, because a profile's
+`pnpm-lock.yaml` pins the resolved commit.
+
+### 3b. npm
 
 ```powershell
 npm login
@@ -78,7 +123,8 @@ first-come.
 - Add topics: `dsh`, `dsh-plugin`, `deepseek-harness`, `desktop-pet`,
   `whale-girl`, `threejs`, `generative-art`, `constellation`.
 - Add a social preview image (1280×640).
-- Create a release tag `v0.1.0`.
+- Create a release tag `v0.1.0` **on a commit where `npm run verify` passes** (see §3a; the
+  first tag was moved because the commit behind it shipped a stale module id).
 - Add the npm install command and a 20–30 s demo GIF to the README.
 - Add 4–6 real UI screenshots:
   1. collapsed pet over the DSH page

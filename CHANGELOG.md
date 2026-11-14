@@ -2,6 +2,30 @@
 
 ## 0.1.0 — release candidate
 
+### Fixed (tag `v0.1.0` re-pointed, 2026-11-14)
+
+- **Client module registration id.** `client.js` registered itself as
+  `@local/dsh-activity-quest`, the pre-rename development package name. DSH's
+  browser module system keys every boot-graph row by the *installed package
+  name* (`dsh-tide-atelier`), so the bundle was fetched, executed, and then
+  rejected with
+  `client-modules: could not load "dsh-tide-atelier": ... loaded without registering "dsh-tide-atelier" via __ModuleLoader__.load`.
+  Symptom: clean install, host entry mounted, and **nothing visible in the UI**.
+  The registration now uses `dsh-tide-atelier`.
+- Added `scripts/verify.mjs` (wired into `npm run check` and `prepublishOnly`):
+  it fails on any drift between `package.json` and the shipped artifact — the
+  registration id, the bundle-patch row name, `dsh.client` fields, `files`
+  presence — and smoke-runs `factory(require)` + `apply(ctx)` against stubbed
+  browser/DSH APIs to confirm the `conversation.input.dock` and `shell.overlay`
+  slots still register. Renaming the package can no longer ship a dead plugin.
+
+> The original `v0.1.0` tag pointed at commit `4b17606`, which contains the
+> defect above. The tag now points at the fixed commit. Anyone who installed
+> before this fix must re-run the install command to pick it up
+> (git dependencies are pinned to the commit recorded in the profile lock).
+
+### Features
+
 - Initial public release candidate of Tide Atelier / 潮汐工坊.
 - Client-only DSH Web plugin with a floating, draggable whale-maid pet.
 - Three generative forms driven by real agent activity: constellation, garden, city.

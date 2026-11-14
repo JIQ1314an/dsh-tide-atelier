@@ -22,6 +22,7 @@
     "locale/*.json",
     "icon.svg",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE",
     "LICENSE-ASSETS",
     "NOTICE",
@@ -33,7 +34,8 @@
     "dsh": ">=0.2.0-rc.2 <0.3.0-0"
   },
   "scripts": {
-    "check": "node --check index.js && node --check client.js",
+    "check": "node --check index.js && node --check client.js && node scripts/verify.mjs",
+    "verify": "node scripts/verify.mjs",
     "prepublishOnly": "npm run check",
     "pack:check": "npm pack --dry-run"
   },

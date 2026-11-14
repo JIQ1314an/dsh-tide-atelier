@@ -12,7 +12,7 @@
 
 > Real DSH UI screenshot: constellation form. The pet scale in this capture predates the final compact sizing.
 
-**Status:** `0.1.0` initial release. npm publication is pending the owner's npm login; the GitHub tag `v0.1.0` and the pinned Git source are available.
+**Status:** `0.1.0` release candidate, verified against the DSH client-module contract (`npm run verify`). npm publication is pending the owner's npm login; the GitHub tag `v0.1.0` is the install source and was re-pointed to the fixed commit (see [`CHANGELOG.md`](CHANGELOG.md)).
 
 **Repository:** https://github.com/JIQ1314an/dsh-tide-atelier
 
@@ -34,16 +34,18 @@
 
 ## 安装
 
+一条命令（推荐，锁定 GitHub tag）：
+
+```bash
+dsh plugin --profile web add https://github.com/JIQ1314an/dsh-tide-atelier.git#v0.1.0
+```
+
+装完刷新一次 Web UI 即可看到宠物。这个包**没有 `prepare`/安装期构建脚本**，产物直接进仓库，所以一条命令安装不需要批准任何 build script；也不要为了"规范化"给它加上 `prepare`——那会让所有用户在 `pnpm` 首次运行时被脚本批准流程卡住。
+
 发布到 npm 后：
 
 ```bash
 dsh plugin --profile web add dsh-tide-atelier
-```
-
-固定 Git 标签（npm 发布前可用）：
-
-```bash
-dsh plugin --profile web add https://github.com/JIQ1314an/dsh-tide-atelier.git#v0.1.0
 ```
 
 本地开发版：
@@ -54,7 +56,16 @@ dsh plugin --profile web add D:\Project\dsh-tide-atelier
 
 > 如果本机还装着旧的 `@local/dsh-activity-quest` 版本，请先禁用/卸载它，避免两个宠物同时注册。
 
-安装后刷新 DSH Web UI。宠物出现在页面浮层中；展开后可看到星图/花园/城市与画廊。
+### 已经装过旧 v0.1.0 的人（2026-11-14 之前）
+
+git 依赖被 profile 锁死在**具体 commit**，移动 tag 不会自动生效，需要重跑一次安装命令：
+
+```bash
+dsh plugin --profile web remove dsh-tide-atelier
+dsh plugin --profile web add https://github.com/JIQ1314an/dsh-tide-atelier.git#v0.1.0
+```
+
+如果只是在 `node_modules` 里手改了 `client.js`，则必须**完整重启该 profile**（`dsh web`）：客户端 bundle 的字节在激活时读入并缓存，热重载只覆盖 profile 自己的 patch 层。
 
 ## 你会看到
 
@@ -92,10 +103,24 @@ dsh plugin --profile web add D:\Project\dsh-tide-atelier
 
 ## 兼容性
 
-- DSH：`>=0.2.0-rc.2 <0.3.0-0`（`engines.dsh`）
+- DSH：`>=0.2.0-rc.2 <0.3.0-0`（`engines.dsh`；DSH 以 `includePrerelease` 评估，`0.2.x-rc.y` 落在区间内）
 - 实际测试：`0.2.1-rc.5`，Web，Windows
 - Node：`>=18`
 - 需要 WebGL；不支持 WebGL 时回退到静态角色图。
+- 纯客户端插件在 **Desktop/Web profile** 上生效；`headless`/`acp`/`sdk` 没有浏览器，宿主条目会挂载但没有任何画面。
+
+### 装了却什么都没出现？三步自查
+
+DSH 客户端插件按**安装后的包名**在浏览器里建索引，`client.js` 必须用同一个名字注册：
+
+```js
+window.__ModuleLoader__.load({ id: 'dsh-tide-atelier', factory(require) { … } })
+```
+
+1. `package.json` 的 `dsh.profile.bundles` 里有 `dsh-tide-atelier`，且它是该 profile 的**直接依赖**（DSH 只组合直接依赖的 bundle 层）。
+2. 浏览器 DevTools Console 有没有 `client-modules: could not load "dsh-tide-atelier"`。
+   - `loaded without registering "dsh-tide-atelier" via __ModuleLoader__.load` ⇒ 注册 id 与包名不一致（改名发版最常见的坑，0.1.0 初版就死在这里）。
+3. 想在本机验证修复：在仓库里跑 `npm run verify`，它会静态比对包名/patch/`dsh.client` 与产物，并用桩环境跑一遍 `factory` + `apply`，确认两个槽位仍然注册得上。
 
 ## 限制
 
@@ -125,19 +150,21 @@ dsh plugin --profile web add D:\Project\dsh-tide-atelier
 
 ## 开发与发布
 
-这个仓库是**发布包**，不是完整的实验工作区；`client.js` 是已经打包好的客户端产物（含 Three.js 和嵌入模型）。
+这个仓库是**发布包**，不是完整的实验工作区；`client.js` 是已经打包好的客户端产物（含 Three.js 和嵌入模型）。产物里的注册 id 由本仓库直接维护，**改包名必须同步改 `client.js` 的 `load({ id: … })`**。
 
 ```bash
-npm run check       # node --check index.js + client.js
+npm run check       # node --check index.js + client.js + 契约校验
+npm run verify      # 只跑契约校验（scripts/verify.mjs）
 npm run pack:check  # npm pack --dry-run
 ```
 
 发布前需要：
 
-1. 确认 `package.json` 的 `repository` / `bugs` / `homepage` 已指向 `JIQ1314an/dsh-tide-atelier`；如果 GitHub 用户名或仓库名变更，同步修改。
-2. 在 GitHub 建公开仓库 `dsh-tide-atelier`，推送本目录。
-3. `npm login` 后执行 `npm publish --access public`。
-4. 在 [Open Plugin Market 收录申请](https://github.com/polang233/dsh-plugin-index/issues/new?template=plugin-add.yml) 提交 npm 包名、实际使用截图、Logo 和测试过的 DSH 版本。
-5. 用 [Open Plugin Market](https://dshopen.org/) 的徽章替换 README 中的占位。
+1. `npm run verify` 必须为绿。它会拦下这次让 v0.1.0 变成"装了没反应"的那类漂移：注册 id ≠ 包名、bundle patch 行名 ≠ 包名、`dsh.client.platform` 不是 `web`、`files` 缺件，以及槽位/词表注册失败。
+2. 确认 `package.json` 的 `repository` / `bugs` / `homepage` 已指向 `JIQ1314an/dsh-tide-atelier`；如果 GitHub 用户名或仓库名变更，同步修改。
+3. 在 GitHub 建公开仓库 `dsh-tide-atelier`，推送本目录，并保证 tag 指向**已验证**的 commit（`git tag -f v0.1.0 && git push -f origin refs/tags/v0.1.0`；重打 tag 要在 CHANGELOG 里写明旧 commit，因为已安装用户要重跑安装命令）。
+4. `npm login` 后执行 `npm publish --access public`。
+5. 在 [Open Plugin Market 收录申请](https://github.com/polang233/dsh-plugin-index/issues/new?template=plugin-add.yml) 提交 npm 包名、实际使用截图、Logo 和测试过的 DSH 版本。
+6. 用 [Open Plugin Market](https://dshopen.org/) 的徽章替换 README 中的占位。
 
 更完整的发布/宣传清单见仓库中的 `RELEASE.md`。

@@ -3699,7 +3699,7 @@ three/build/three.module.js:
  * compact descriptors so the same task can be re-viewed in any form.
  */
 window.__ModuleLoader__.load({
-  id: '@local/dsh-activity-quest',
+  id: 'dsh-tide-atelier',
   factory(require) {
     const React = require('react');
     const h = React.createElement;
