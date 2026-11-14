@@ -12,7 +12,7 @@
 
 > Real DSH UI screenshot: constellation form. The pet scale in this capture predates the final compact sizing.
 
-**Status:** `0.1.1`，产物已通过 DSH 客户端模块契约校验（`npm run verify`）。GitHub tag `v0.1.0` 已重指向修复提交，`v0.1.1` 与本次发布同源；npm 侧的 `0.1.0` 是坏产物、无法覆盖，只能由 `0.1.1` 取代（详见 [`CHANGELOG.md`](CHANGELOG.md)）。
+**Status:** `0.1.1` 已发布（npm `latest` = `0.1.1`，GitHub tag `v0.1.1`），产物通过 DSH 客户端模块契约校验（`npm run verify`）。坏掉的 `0.1.0` / 占位的 `0.0.0-stage` 已在 npm 上 deprecate；GitHub tag `v0.1.0` 也已重指向修复提交。详见 [`CHANGELOG.md`](CHANGELOG.md)。
 
 **Repository:** https://github.com/JIQ1314an/dsh-tide-atelier
 
@@ -34,21 +34,21 @@
 
 ## 安装
 
-一条命令（推荐，锁定 GitHub tag，不依赖 npm 发布状态）：
+一条命令（npm，推荐）：
+
+```bash
+dsh plugin --profile web add dsh-tide-atelier
+```
+
+想要不经 registry、直接锁定源码标签，用 git 渠道（`#v0.1.1` 与新发布的 npm 包字节同一份产物；`#v0.1.0` 也已重指向修复提交，同样可用）：
 
 ```bash
 dsh plugin --profile web add https://github.com/JIQ1314an/dsh-tide-atelier.git#v0.1.1
 ```
 
-`#v0.1.0` 现在也指向修复后的产物，装哪个都能用。装完刷新一次 Web UI 即可看到宠物。这个包**没有 `prepare`/安装期构建脚本**，产物直接进仓库，所以一条命令安装不需要批准任何 build script；也不要为了"规范化"给它加上 `prepare`——那会让所有用户在 `pnpm` 首次运行时被脚本批准流程卡住。
+装完刷新一次 Web UI 即可看到宠物。这个包**没有 `prepare`/安装期构建脚本**，产物直接进仓库与 tarball，所以一条命令安装不需要批准任何 build script；也不要为了"规范化"给它加上 `prepare`——那会让所有用户在 `pnpm` 首次运行时被脚本批准流程卡住。
 
-npm 渠道：
-
-```bash
-dsh plugin --profile web add dsh-tide-atelier@0.1.1
-```
-
-> ⚠️ **不要装 npm 的 `0.1.0`**：那份 `client.js` 是改名前的产物，注册 id 与包名不一致，装完不会有任何画面，而且 npm 不允许覆盖同名版本。`0.1.1` 上线之前，`latest` 仍指向坏包，请用上面的 git tag 或显式版本号。
+> `0.1.0` 是改名前的坏产物（客户端模块注册 id 与包名不一致，装完没有任何画面）。npm 不允许覆盖已发布版本，因此它已被 `npm deprecate`，`latest` 已指向 `0.1.1`；如果你手动指定过 `@0.1.0`，安装时会被弃用提示拦住。
 
 本地开发版：
 

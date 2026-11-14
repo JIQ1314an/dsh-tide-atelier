@@ -10,19 +10,32 @@ npm refuses to overwrite a published version.
 - `scripts/verify.mjs` contract gate, wired into `npm run check` / `prepublishOnly`.
 - `CHANGELOG.md` now ships inside the package so installs can read what happened.
 
+### Publish record
+
+Published 2026-11-14 from this commit as a tarball (`npm publish dsh-tide-atelier-0.1.1.tgz`),
+because the machine's default npm registry is the `registry.npmmirror.com` mirror —
+publishing has to name the source registry explicitly:
+
+```powershell
+npm publish --registry=https://registry.npmjs.org --access public
+```
+
+- shasum `0d3b7703672ed839a65f20c49c54059c33ed0783`
+- integrity `sha512-SbKQkzxmrv26WDRLqMsXrNppQM89YAI60kOATLtV7+66RUCksZSfE5EulUAfazOL2RZkLKPH8mMsAmBvju4/AQ==`
+- `latest` → `0.1.1`; the mirror had it within ~2 minutes.
+- Deprecated: `0.1.0` ("broken: client bundle registered the pre-rename module id
+  `@local/dsh-activity-quest`, so the plugin renders nothing. Use 0.1.1.") and
+  `0.0.0-stage` (placeholder publish, no usable client bundle).
+
 ### Upgrade notes by channel
 
-| Channel | Situation | Action |
+| Channel | State | Action |
 |---|---|---|
-| npm `dsh-tide-atelier@0.1.0` | **Dead on arrival** — stale module id, plugin never renders | Install `0.1.1`; deprecate `0.1.0` so installers get a warning |
-| npm `latest` | Until `0.1.1` is published, `latest` still points at the broken `0.1.0` | Use the git tag command meanwhile |
-| Git `#v0.1.0` | Fixed (re-pointed to `2e81516`) | Already working; `#v0.1.1` is the tidy reference |
-| Git `main` | Tracks this commit | Fine, but pin a tag for reproducibility |
-
-```bash
-# after publishing 0.1.1
-npm deprecate "dsh-tide-atelier@0.1.0" "broken: client bundle registered the pre-rename module id; use 0.1.1"
-```
+| npm `latest` | ✅ `0.1.1`, verified | `dsh plugin --profile web add dsh-tide-atelier` |
+| npm `0.1.0` | ❌ dead artifact, immutable, now deprecated | `remove` + `add dsh-tide-atelier@0.1.1` |
+| Git `#v0.1.1` | ✅ same bytes as npm | works without a registry |
+| Git `#v0.1.0` | ✅ fixed (re-pointed to `2e81516`) | already-working installs |
+| Existing broken install | pinned to an old commit or npm `0.1.0` | `remove` then `add`; a changed git specifier is required for pnpm to re-resolve |
 
 ## 0.1.0 — release candidate
 

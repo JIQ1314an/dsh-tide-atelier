@@ -8,10 +8,10 @@ HF token file into this repository.
 ## 0. Identity (current state)
 
 - Brand: **Tide Atelier / 潮汐工坊**
-- npm package: **`dsh-tide-atelier`** — published 2026-11-13 by `miloji`
-  (`0.0.0-stage`, `0.1.0`). **`0.1.0` is the broken artifact** (stale module id) and
-  npm will not let it be overwritten; `0.1.1` is the first installable npm version,
-  and `latest` must move to it.
+- npm package: **`dsh-tide-atelier`** — `miloji` published `0.0.0-stage` and `0.1.0`
+  on 2026-11-13; **`0.1.0` is the broken artifact** (stale module id) and npm cannot
+  overwrite it. `0.1.1` was published 2026-11-14 from tag `v0.1.1`, `latest` now
+  resolves to it, and both bad versions carry an npm deprecation notice.
 - GitHub repository: **`JIQ1314an/dsh-tide-atelier`** — public; tag `v0.1.0` was
   re-pointed to the fix (`2e81516`), tag `v0.1.1` carries the version bump.
 - GitHub account: **`JIQ1314an`**
@@ -106,24 +106,44 @@ resolution when the recorded specifier is unchanged. Record superseded commits i
 
 ### 3b. npm
 
-npm versions are immutable, so a published defect is repaired by the *next* version:
+npm versions are immutable, so a published defect is repaired by the *next* version.
+
+**This machine publishes through an explicit registry.** The user-level `~/.npmrc`
+sets `registry=https://registry.npmmirror.com` (a read-only CN mirror) while the
+token is scoped `//registry.npmjs.org/:_authToken=npm_…`. Consequences worth
+remembering:
+
+- plain `npm whoami` fails with `ENEEDAUTH` even with a valid login, because the
+  scoped token is only sent to `registry.npmjs.org`. Always check identity with
+  `npm whoami --registry=https://registry.npmjs.org`.
+- `npm publish` / `npm deprecate` must also name the registry, or they talk to the
+  mirror and fail.
+- A `npm_`-prefixed granular token hits `403` on `npm profile get`; that is a token
+  scope limit, not a broken login. npm is also retiring tokens that bypass 2FA for
+  publishing, so watch for that notice if publishing starts refusing.
+
+Publish the exact bytes you verified, from the release commit:
 
 ```powershell
-npm login
-npm publish --access public                     # from the v0.1.1 commit
-npm deprecate "dsh-tide-atelier@0.1.0" "broken: client bundle registered the pre-rename module id; use 0.1.1"
+npm run verify
+npm pack                                          # dsh-tide-atelier-<version>.tgz
+node scripts/verify.mjs <extracted-tarball>        # check the artifact, not the worktree
+npm publish ".\dsh-tide-atelier-0.1.1.tgz" --access public --registry=https://registry.npmjs.org
+npm deprecate "dsh-tide-atelier@0.1.0" "broken: client bundle registered the pre-rename module id; use 0.1.1" --registry=https://registry.npmjs.org
 ```
 
-Then verify:
+Then confirm all three views, including the mirror that CN users actually hit:
 
 ```powershell
-npm view dsh-tide-atelier dist-tags.latest
-npm view dsh-tide-atelier@0.1.1 dist.tarball
-dsh plugin --profile web add dsh-tide-atelier@0.1.1
+npm view dsh-tide-atelier dist-tags --registry=https://registry.npmjs.org
+npm view dsh-tide-atelier@0.1.1 dist.shasum --registry=https://registry.npmjs.org   # == local Get-FileHash -Algorithm SHA1
+npm view dsh-tide-atelier dist-tags --registry=https://registry.npmmirror.com
+dsh plugin --profile web add dsh-tide-atelier
 ```
 
-Until `0.1.1` is published, `latest` still resolves to the broken `0.1.0`, so README
-and market submissions must point users at the git tag or an explicit version.
+Registry propagation is not instant: `dist-tags` kept showing the old `latest` for
+about two minutes after `npm publish` returned `+ dsh-tide-atelier@0.1.1`, and
+`npm view …@0.1.1` answered `E404` in that window. Poll; do not re-publish.
 
 ## 4. GitHub
 
